@@ -1,4 +1,4 @@
-jcompress
+JCompress
 =========
 
 Joomla compression plugin
