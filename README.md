@@ -1,0 +1,4 @@
+jcompress
+=========
+
+Joomla compression plugin
