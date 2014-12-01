@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="system" method="upgrade">
+	<name>JCompress</name>
+	<author>Youjoomla.com</author>
+	<creationDate>11-28-2014</creationDate>
+	<copyright>Copyright (c) since 2007 Youjoomla.com. All rights reserved.</copyright>
+	<authorEmail>youjoomla@gmail.com</authorEmail>
+	<authorUrl>www.youjoomla.com</authorUrl>
+	<version>RC1</version>
+	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+	<description>
+		<![CDATA[<style type="text/css" media="all">body {background:#fff;}#wrap1 {padding:10px 0;margin:0 auto;display:block;overflow:hidden;height:580px!important;background:#F6F6F6;border:1px solid #DEDEDE;}span.extitle {display:block;clear:both;font-weight:bold;font-family: Arial Narrow, sans-serif;font-size:18px;margin:10px 20px;color:#1e2325!important;text-align:center;padding:5px;background:#DEDEDE;border:5px solid #fff;text-shadow:1px 1px #fff;}.eximg {margin:0 auto 20px auto;border:5px solid #fff;}.exinfo{display:block;overflow:hidden;text-align:left;padding:10px;clear:both;font-size:12px;font-weight:bold;}</style>
+			<div id="wrap1">
+			<span class="extitle">JCompress system plugin for Joomla</span>
+			<a title="Visit the official website!" href="http://www.youjoomla.com" target="_blank">
+			<img class="eximg" src="../plugins/system/jcompress/images/yj_extensions.jpg" border="0" alt="Logo" />
+			</a>
+			<div class="exinfo">Thank you for downloading Youjoomla.com extension.
+			<br />
+			To setup your plugin please hover over the plugin parameters
+			<br />
+			and follow the instructions.
+			<br />
+			If you need support please post new thread in our
+			<a href="http://www.youjoomla.com/joomla_support/index.php" target="_blank">Forum</a>
+			.
+			<br />
+			Have fun playing with your new extension :).
+			<br />
+			<a href="www.youjoomla.com">Youjoomla.com</a>
+			</div>
+			</div>]]>
+	</description>
+	<scriptfile>install.script.php</scriptfile>
+	<files>
+		<filename plugin="jcompress">jcompress.php</filename>
+		<filename>install.script.php</filename>
+		<filename>index.html</filename>
+		<folder>images</folder>
+		<folder>lib</folder>
+		<folder>elements</folder>
+	</files>
+	<languages folder="language">
+		<language tag="en-GB">en-GB.plg_system_jcompress.ini</language>
+		<language tag="en-GB">en-GB.plg_system_jcompress.sys.ini</language>
+	</languages>
+	<updateservers>
+		<server type="extension" priority="1" name="JCompress Updates">http://yjsimplegrid.com/tracker/extensions/jcompress.xml</server>
+	</updateservers>
+	<config>
+		<fields name="params" addfieldpath="/plugins/system/jcompress/elements">
+			<fieldset name="cache_options">
+				<field name="caching_on" type="radio"
+					label="PLG_JCOMPRESS_TURN_ON"
+					description="PLG_JCOMPRESS_TURN_DESC"
+					default="1"
+					class="radio btn-group"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="cache_expire" type="text" default="24" label="PLG_JCOMPRESS_CACHE_TIME" description="PLG_JCOMPRESS_CACHE_TIME_DESC" size="10" />
+				<field name="cache_css" type="radio"
+					label="PLG_JCOMPRESS_CACHE_CSS"
+					description="PLG_JCOMPRESS_CACHE_DESC"
+					default="1"
+					class="radio btn-group"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="cache_js" type="radio"
+					label="PLG_JCOMPRESS_CACHE_JS"
+					description="PLG_JCOMPRESS_CACHE_DESC"
+					default="1"
+					class="radio btn-group"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="yjsgclear" type="yjsgclear" />
+			</fieldset>
+			<fieldset name="compression_options">
+				<field name="compress_css" type="radio"
+					label="PLG_JCOMPRESS_COMP_CSS"
+					description="PLG_JCOMPRESS_COMP_DESC"
+					default="0"
+					class="radio btn-group"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="compress_js" type="radio"
+					label="PLG_JCOMPRESS_COMP_JS"
+					description="PLG_JCOMPRESS_COMP_JS_DESC"
+					default="0"
+					class="radio btn-group"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="gzip_css" type="radio"
+					label="PLG_JCOMPRESS_GZIP_CSS"
+					description="PLG_JCOMPRESS_GZIP_CSS_DESC"
+					default="0"
+					class="radio btn-group"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="gzip_js" type="radio"
+					label="PLG_JCOMPRESS_GZIP_JS"
+					description="PLG_JCOMPRESS_GZIP_JS_DESC"
+					default="0"
+					class="radio btn-group"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="compress_inline_css" type="radio"
+					label="PLG_JCOMPRESS_IN_CSS"
+					description="PLG_JCOMPRESS_IN_CSS_DESC"
+					default="0"
+					class="radio btn-group"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="compress_inline_js" type="radio"
+					label="PLG_JCOMPRESS_IN_JS"
+					description="PLG_JCOMPRESS_IN_JS_DESC"
+					default="0"
+					class="radio btn-group"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="compress_html" type="radio"
+					label="PLG_JCOMPRESS_HTML"
+					description="PLG_JCOMPRESS_HTML_DESC"
+					default="0"
+					class="radio btn-group"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+			</fieldset>
+			<fieldset name="advanced_options">
+				<field type="spacer" name="background" label="PLG_JCOMPRESS_SP_BG" />
+				<field name="in_background" type="radio"
+					label="PLG_JCOMPRESS_BG"
+					description="PLG_JCOMPRESS_BG_DESC"
+					default="1"
+					class="radio btn-group"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field type="spacer" name="excludefiles" label="PLG_JCOMPRESS_SP_EXCLUDE" />
+				<field name="exclude_css" type="textarea" class="inputbox"
+					rows="3" cols="30" label="PLG_JCOMPRESS_EX_CSS"
+					description="PLG_JCOMPRESS_EX_CSS_DESC" />
+				<field name="place_excluded_css" type="list" default="before" label="PLG_JCOMPRESS_PL_EX_CSS" description="PLG_JCOMPRESS_PL_EX_CSS_DESC">
+					<option value="before">PLG_JCOMPRESS_BC_CSS</option>
+					<option value="after">PLG_JCOMPRESS_AC_CSS</option>
+				</field>
+				<field name="exclude_js" type="textarea" class="inputbox"
+					rows="3" cols="30" label="PLG_JCOMPRESS_EX_JS"
+					description="PLG_JCOMPRESS_EX_JS_DESC" />
+				<field name="place_excluded_js" type="list" default="after" label="PLG_JCOMPRESS_PL_EX_JS" description="PLG_JCOMPRESS_PL_EX_JS_DESC">
+					<option value="before">PLG_JCOMPRESS_BC_JS</option>
+					<option value="after">PLG_JCOMPRESS_BC_JS</option>
+				</field>
+				<field type="spacer" name="externalhandling" label="PLG_JCOMPRESS_SP_EXTERNAL" />
+				<field name="place_external_css" type="list" default="after" label="PLG_JCOMPRESS_EXT_PL_CSS" description="PLG_JCOMPRESS_EXT_PL_CSS_DESC">
+					<option value="before">PLG_JCOMPRESS_BC_CSS</option>
+					<option value="after">PLG_JCOMPRESS_AC_CSS</option>
+				</field>
+				<field name="place_external_js" type="list" default="after" label="PLG_JCOMPRESS_EXT_PL_JS" description="PLG_JCOMPRESS_EXT_PL_JS_DESC">
+					<option value="before">PLG_JCOMPRESS_BC_JS</option>
+					<option value="after">PLG_JCOMPRESS_BC_JS</option>
+				</field>
+				<field type="spacer" name="exclude" label="PLG_JCOMPRESS_SP_EXCLUDE" />
+				<field name="excluded_menuitems" type="menuitem" multiple="multiple" size="10" label="PLG_JCOMPRESS_EX_MENU" description="PLG_JCOMPRESS_EX_MENU_DESC" />
+				<field name="excluded_components" type="yjsgcomponents" label="PLG_JCOMPRESS_EX_COM" description="PLG_JCOMPRESS_EX_COM_DESC" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>
