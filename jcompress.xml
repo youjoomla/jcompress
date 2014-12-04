@@ -156,7 +156,16 @@
 					<option value="0">JNO</option>
 					<option value="1">JYES</option>
 				</field>
-				<field type="spacer" name="excludefiles" label="PLG_JCOMPRESS_SP_EXCLUDE" />
+				<field name="enable_versions" type="radio"
+					label="PLG_JCOMPRESS_VERSIONS"
+					description="PLG_JCOMPRESS_VERSIONS_DESC"
+					default="1"
+					class="radio btn-group"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field type="spacer" name="excludefiles" label="PLG_JCOMPRESS_SP_EXCLUDE_FILES" />
 				<field name="exclude_css" type="textarea" class="inputbox"
 					rows="3" cols="30" label="PLG_JCOMPRESS_EX_CSS"
 					description="PLG_JCOMPRESS_EX_CSS_DESC" />
@@ -169,7 +178,7 @@
 					description="PLG_JCOMPRESS_EX_JS_DESC" />
 				<field name="place_excluded_js" type="list" default="after" label="PLG_JCOMPRESS_PL_EX_JS" description="PLG_JCOMPRESS_PL_EX_JS_DESC">
 					<option value="before">PLG_JCOMPRESS_BC_JS</option>
-					<option value="after">PLG_JCOMPRESS_BC_JS</option>
+					<option value="after">PLG_JCOMPRESS_AC_JS</option>
 				</field>
 				<field type="spacer" name="externalhandling" label="PLG_JCOMPRESS_SP_EXTERNAL" />
 				<field name="place_external_css" type="list" default="after" label="PLG_JCOMPRESS_EXT_PL_CSS" description="PLG_JCOMPRESS_EXT_PL_CSS_DESC">
@@ -183,6 +192,39 @@
 				<field type="spacer" name="exclude" label="PLG_JCOMPRESS_SP_EXCLUDE" />
 				<field name="excluded_menuitems" type="menuitem" multiple="multiple" size="10" label="PLG_JCOMPRESS_EX_MENU" description="PLG_JCOMPRESS_EX_MENU_DESC" />
 				<field name="excluded_components" type="yjsgcomponents" label="PLG_JCOMPRESS_EX_COM" description="PLG_JCOMPRESS_EX_COM_DESC" />
+				<field type="spacer" name="dataurl" label="PLG_JCOMPRESS_SP_DATAURL" />
+				<field name="datauri_images" type="radio"
+					label="PLG_JCOMPRESS_DATAURL_IMAGES"
+					description="PLG_JCOMPRESS_DATAURL_IMAGES_DES"
+					default="0"
+					class="radio btn-group"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="datauri_fonts" type="radio"
+					label="PLG_JCOMPRESS_DATAURL_FONTS"
+					description="PLG_JCOMPRESS_DATAURL_FONTS_DESC"
+					default="0"
+					class="radio btn-group"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="datauri_size" type="text" default="25000" label="PLG_JCOMPRESS_DTAURISIZE" description="PLG_JCOMPRESS_DTAURISIZE_DESC" size="10" />
+				<field type="spacer" name="special" label="PLG_JCOMPRESS_SP_SPECIAL" />
+				<field name="js_tobottom" type="radio"
+					label="PLG_JCOMPRESS_JSTOBOTTOM"
+					description="PLG_JCOMPRESS_JSTOBOTTOM_DESC"
+					default="0"
+					class="radio btn-group"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="ex_jsb_menuitems" type="menuitem" multiple="multiple" size="10" label="PLG_JCOMPRESS_EX_JSB_MENU" description="PLG_JCOMPRESS_EX_JSB_MENU_DESC" />
+				<field name="ex_jsb_components" type="yjsgcomponents" label="PLG_JCOMPRESS_EX_JSB_COM" description="PLG_JCOMPRESS_EX_JSB_COM_DESC" />
+				<field type="spacer" name="addspace5" label="PLG_JCOMPRESS_SP_ADDSPACE5" />
 			</fieldset>
 		</fields>
 	</config>
