@@ -49,7 +49,8 @@ class plgSystemJCompress extends JPlugin{
 			parent::__construct($subject, $config);
 			$this->loadLanguage();
 			$this->app     = JFactory::getApplication(); 
-			
+			JLoader::register('JcompressUtil', dirname(__FILE__) . '/lib/JcompressUtil.php', true);
+			$this->util = new JcompressUtil;
 	}
 	
 	
@@ -96,7 +97,15 @@ class plgSystemJCompress extends JPlugin{
 		
 					
 		$this->in_background		= $this->params->get('in_background', 1);
+		$this->enable_versions		= $this->params->get('enable_versions', 1);
 		
+		$this->datauri_images		= $this->params->get('datauri_images', 0);
+		$this->datauri_fonts		= $this->params->get('datauri_fonts', 0);
+		$this->datauri_size			= $this->params->get('datauri_size', 25000);
+		
+		$this->js_tobottom			= $this->params->get('js_tobottom', 0);
+		$this->ex_jsb_menuitems		= $this->params->get('ex_jsb_menuitems', array());
+		$this->ex_jsb_components	= $this->params->get('ex_jsb_components', array());
 
 		
 	}
@@ -121,9 +130,28 @@ class plgSystemJCompress extends JPlugin{
 	
 	public function onAfterRender(){
 
-		
+
 		if($this->app->isSite() && $this->caching_on == 1){
-	
+			
+			// exclude js_tobottom from menu items
+			if(!empty($this->ex_jsb_menuitems) && in_array($this->itemid ,$this->ex_jsb_menuitems)){
+				
+				$this->js_tobottom	= 0;
+			}
+			// exclude js_tobottom from components
+			if(!empty($this->ex_jsb_components) && in_array($this->option,$this->ex_jsb_components)){
+				
+				$this->js_tobottom = 0;
+				
+			}
+			
+			// exclude js_tobottom from external apps
+			if (defined('YJEXTERNAL')) {
+				
+				$this->js_tobottom = 0;
+				
+			}
+				
 			// exclude from menu items
 			if(!empty($this->excluded_menuitems) && in_array($this->itemid ,$this->excluded_menuitems)){
 				$this->caching_on = 0;
@@ -152,7 +180,7 @@ class plgSystemJCompress extends JPlugin{
 		
 		$this->body				= $this->getBody();
 		
-		$this->headData			= $this->getHeadData($this->body);
+		$this->headData			= $this->util->getHeadData($this->body);
 		
 		$this->headTagContent	= $this->headData['headTagContent'];
 		
@@ -206,24 +234,24 @@ class plgSystemJCompress extends JPlugin{
 		
 		if($this->compress_inline_css == 1){
 			
-			$head 	= $this->processInlineCss($this->inline_css_head,$head);
+			$head 	= $this->util->processInlineCss($this->inline_css_head,$head);
 		}
 		
 		if($this->compress_inline_js == 1){
-			$head = $this->processInlineJs($this->inline_js_head,$head);
+			$head = $this->util->processInlineJs($this->inline_js_head,$head);
 		}
 	
 		if(JFile::exists($this->cached_css) && $this->cache_css == 1 && !empty($this->headData['styleSheetsLines'])){
 
 			$this->css_is_cached 	= true;
-			$cached_css_file 		= $this->new_css_file.'?v='.$this->versionFiles($this->cached_css);
+			$cached_css_file 		= $this->new_css_file.$this->versionFiles($this->cached_css);
 			$head 					= $this->replaceFiles($this->headData['styleSheetsLines'],$cached_css_file,$head,'css');
 		}
 		
 		if(JFile::exists($this->cached_js) && $this->cache_js == 1 && !empty($this->headData['scriptsLines'])){
 			
 			$this->js_is_cached = true;
-			$cached_js_file 	= $this->new_js_file.'?v='.$this->versionFiles($this->cached_js);
+			$cached_js_file 	= $this->new_js_file.$this->versionFiles($this->cached_js);
 			$head 				= $this->replaceFiles($this->headData['scriptsLines'],$cached_js_file,$head,'js');
 		}
 		
@@ -244,63 +272,25 @@ class plgSystemJCompress extends JPlugin{
 		
 		if($this->caching_on == 1){
 			
-			$body = $this->setHead($this->body,$head);
+			$body = $this->util->setHead($this->body,$head);
 			if($this->compress_html == 1){
 				
-				$body = $this->htmlCleanup($body,true);
+				$body = $this->util->htmlCleanup($body,true);
 			}
+			
+			if($this->js_tobottom == 1){
+				$body = $this->util->jsToBottom($body);
+			}
+			
 			$this->setBody($body);
+			
 		}
 		
 		$this->processviaAjax();
 
 		return true;
 	}
-	
-	public function setHead($body,$newhead){
-		
-		$RegexHead="#(<head>)(.*?)(</head>)#is";
-		preg_match_all($RegexHead, $body, $head_content);
-		
-		$head = $head_content[2][0];
-		
-		$compres_head = $this->htmlCleanup($newhead);
-		
-		$body = str_replace($head,$compres_head,$body);
-		return 	$body;
-	}
-	
 
-	// Cleanup white space, tabs and new lines
-	public function htmlCleanup ($content,$spaces = false){
-		
-		if($spaces){
-
-		   $reg = array(
-				'/\>[^\S ]+/s',
-				'/[^\S ]+\</s',
-				'/\>[\s]+\</s',
-			);
-		
-			$rep = array(
-				'> ',
-				' <',
-				'> <',
-			);
-			
-		}else{
-			
-			$reg = "/^\n+|^[\t\s]*\n+/m";
-			$rep ="";
-			
-		}
-		
-		$new_content = preg_replace($reg, $rep, $content);
-		
-		
-		return $new_content;	
-	}
-	
 	// Process CSS files
 	private function processCssFiles($cssFiles){
 
@@ -338,8 +328,8 @@ class plgSystemJCompress extends JPlugin{
 
 		if($this->compress_css == 1){
 			
-			$cached_css_file_content = $this->removeComments($cached_css_file_content);
-			$cached_css_file_content = $this->removeEmptyLines($cached_css_file_content);
+			$cached_css_file_content = $this->util->removeComments($cached_css_file_content);
+			$cached_css_file_content = $this->util->removeEmptyLines($cached_css_file_content);
 			
 		}
 		
@@ -409,7 +399,7 @@ class plgSystemJCompress extends JPlugin{
 			
 			if( JFile::exists($filepath) ){
 				
-				$js_file_content [] = JFile::read($filepath);
+				$js_file_content [] = "\r\n/*!$fileurl*/\r\n".JFile::read($filepath)."\r\n";
 				$this->js_log_content [$filepath]['filetime']= filemtime($filepath);
 				
 			}
@@ -463,33 +453,7 @@ class plgSystemJCompress extends JPlugin{
 		JFile::write($this->cached_js_log,$add_js_log_content);	
 		
 	}
-	
-	// Process inline CSS
-	private function processInlineCss($inlinecss,$content){
-		
-		foreach($inlinecss as $css){
-			
-			$compresscss = $this->removeEmptyLines($css);
-			$content = str_replace($css,$compresscss,$content);
-		}
-		
-		return $content;
-		
-	}	
 
-	// Process inline JS
-	private function processInlineJs($inlinejs,$content){
-		
-		foreach($inlinejs as $js){
-			
-			$compressed_js = $this->wspace($js);
-			$content = str_replace($js,$compressed_js,$content);
-		}
-		
-		return $content;
-	}
-	
-	
 	// Process via Ajax if external app
 	private function processviaAjax(){
 		
@@ -558,11 +522,7 @@ class plgSystemJCompress extends JPlugin{
 
 	}
 	
-	
 
-	
-
-	
 	// Reaplace head files with cached ones
 	protected function replaceFiles($files_array,$rep,$content,$type='css'){
 		
@@ -593,7 +553,7 @@ class plgSystemJCompress extends JPlugin{
 				$files_array = $this->excludeFiles($files_array,$this->exclude_js,true);
 				$excluded_js_arr 	= $this->exclude_js;
 			}
-			$replacemant = '<script src="'.$rep.'" type="text/javascript"></script>';
+			$replacemant = '<script type="text/javascript" src="'.$rep.'"></script>';
 			$clean_reg	 = '/src=["\']?([^"\'>]+)["\']?/';
 		}
 	
@@ -615,10 +575,10 @@ class plgSystemJCompress extends JPlugin{
 				}
 			}
 			
-			if ($this->arrayContains($excluded_js_arr, $lines)) {
+			if ($this->util->arrayContains($excluded_js_arr, $lines)) {
     			$excluded_js [$key] = $lines;
 			}
-			if ($this->arrayContains($excluded_css_arr, $lines)) {
+			if ($this->util->arrayContains($excluded_css_arr, $lines)) {
     			$excluded_css [$key] = $lines;
 			}
 
@@ -659,39 +619,12 @@ class plgSystemJCompress extends JPlugin{
 
 		return $content;
 	}
-	
-	// Array contains a string
-	public function arrayContains($array, $string){
-		foreach ($array as $name) {
-			if (stripos($string, $name) !== FALSE) {
-				return true;
-			}
-		}
-	}	
-	
-	
-	public function parseUrl($url){
-		
-		
-		if(version_compare(PHP_VERSION, '5.3.0') >= 0) {
-			
-			return $this->split_url($url);
-			
-		}else{
-			
-			return parse_url($url);
-		}
-		
-	}
-	
+
 	// Check if the file is external
 	protected function externalFile($url,$site_url){
-		
-		
-		
-		
-		$parseurl 		= $this->parseUrl($url);
-		$parsesite_url	= $this->parseUrl($site_url);
+
+		$parseurl 		= $this->util->parseUrl($url);
+		$parsesite_url	= $this->util->parseUrl($site_url);
 		
 		
 		if(isset($parseurl['host']) && $parseurl['host'] != $parsesite_url['host']){
@@ -705,18 +638,14 @@ class plgSystemJCompress extends JPlugin{
 		
 	}
 	
-	// Remove white space
-	private function wspace($string){
-		
-		$string = preg_replace( array('/[^(http:)]\/\/.*$/m','/\/\*.*\*\//U', '/\s+/'), array('','',' '), $string);
-		return $string;
-	}	
 	
 	// Version files
 	private function versionFiles($file){
 		
+		if($this->enable_versions == 0) return;
+		
 		$version = hash("crc32b",filemtime($file));
-		return $version;
+		return '?version='.$version;
 		
 	}
 	
@@ -788,7 +717,7 @@ class plgSystemJCompress extends JPlugin{
 			if($checkExCss || $checkExJs){
 			
 
-				if($this->arrayContains($excluded,$filename)){
+				if($this->util->arrayContains($excluded,$filename)){
 
 					if($type == 'css'){
 						
@@ -850,23 +779,11 @@ class plgSystemJCompress extends JPlugin{
 			return $files_array;
 	}
 	
-	// Remove coments
-	private function removeComments($txt) {
-    	$txt = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $txt);
-		return $txt;
-	}
-
-	// Remove empty lines
-	private function removeEmptyLines($txt) {
-		$txt = str_replace(array("\r\n", "\r", "\n", "\t", '  ', '    ', '    '), '', $txt);
-		return $txt;
-	}
-	
 	// Relative to absoulte path CSS
 	private function cssRelToAbs($absurl, $css) {
 		if (!preg_match('@url@i', $css)) { return $css; }
 		
-		$options = $this->parseUrl($absurl); 
+		$options = $this->util->parseUrl($absurl); 
 		if (!$options) { return $css; }
 		$options['absurl'] = $absurl;
 		$options['urlBasePath'] = substr($options['path'], 0, strrpos($options['path'],"/"));
@@ -918,6 +835,17 @@ class plgSystemJCompress extends JPlugin{
 		$finalcss = preg_replace('\'(url\\(\\s*[\\\'"]?\\s*)(/)(.*?\\))\'', '$1'.$options['scheme'].'://'.$options['host'].'$2$3', $finalcss); 
 		$finalcss = preg_replace('\'(url\\(\\s*[\\\'"]?\\s*)(((?!https?://)(?!data:?).)*?\\))\'', '$1'.$options['urlBase'].'/'.'$2', $finalcss); 
 		
+		if($this->datauri_images == 1 || $this->datauri_fonts == 1){
+			preg_match_all('/url\(([\s])?([\"|\'])?(.*?)([\"|\'])?([\s])?\)/i', $finalcss, $urls, PREG_PATTERN_ORDER);
+			if ($urls) {
+			   foreach($urls[3] as $url) {
+	
+				 $todataurl = $this->toDataUrl($url);
+				 $finalcss = str_replace($url,$todataurl,$finalcss);
+			   }
+			}
+		}
+		
 		if(strstr($finalcss,'@import')){
 				
 			$re = "/(@import url\\((.*?)\\);)/"; 
@@ -947,22 +875,13 @@ class plgSystemJCompress extends JPlugin{
 		return $finalcss;
 	}
 	
-	// str_replace once
-	public function str_replace_first($search, $replace, $subject) {
-		$pos = strpos($subject, $search);
-		if ($pos !== false) {
-			$subject = substr_replace($subject, $replace, $pos, strlen($search));
-		}
-		return $subject;
-	}	
-	
 	// get absulte file links or paths
 	protected function fileLink($url,$topath = false){
 		
 		
 		if ($this->externalFile($url, $this->site_url)) return $url;
 		
-		$parseurl = $this->parseUrl($this->site_url);
+		$parseurl = $this->util->parseUrl($this->site_url);
 		
 		$parsepath ='';
 
@@ -974,11 +893,11 @@ class plgSystemJCompress extends JPlugin{
 		
 		
 		if ($url && $domain && strpos($url, $domain) !== false){
-			 $url = $this->str_replace_first($domain, "", $url);
+			 $url = $this->util->str_replace_once($domain, "", $url);
 		}
 		
 		if ($url && $parsepath && strpos($url, $parsepath) !== false) {
-			 $url = $this->str_replace_first($parsepath, "", $url);
+			 $url = $this->util->str_replace_once($parsepath, "", $url);
 		}
 		
 		if($topath){
@@ -1067,90 +986,6 @@ class plgSystemJCompress extends JPlugin{
 		return $new_file_content;
 	 }
 	 
-	 
-	 
-	// get everything inside head tag
-	private function getHeadData($buffer){
-		
-		//remove the commented tags
-		$buffer = preg_replace( '/\<\!\-\-.*\-\-\>/Us', '', $buffer );	
-		
-		$linksRegexHead="#(<head>)(.*?)(</head>)#is";
-		preg_match_all($linksRegexHead, $buffer, $head_content);
-		
-		
-		
-		$scriptRegex="/<\s*script[^>]+.*src=['\"]([^'\"]*)['\"].*[\/>|><\/script>]/i";
-		preg_match_all($scriptRegex, $head_content[2][0], $js_matches);
-		
-		foreach($js_matches[1] as $row => $change_file){
-	
-			preg_match("/\\.js(.*)/", $change_file, $extrajs);
-			
-			if(!empty($extrajs[1])){
-				$js_matches[1][$row] = str_replace($extrajs[1],'',$change_file);
-			}
-	
-			if( !strstr($change_file, ".js") || strstr($change_file, "index.php") || !strstr($js_matches[0][$row], "text/javascript") ){
-				unset($js_matches[0][$row]);
-				unset($js_matches[1][$row]);
-			}	
-		}
-		
-		$js_matches[0]  = array_values($js_matches[0]);
-		$js_matches[1]  = array_values($js_matches[1]);
-		
-		
-		$buffer_uncomment	= preg_replace('#<!--\[[^\[<>].*?(?<!!)-->#s', '', $buffer);
-		
-		$linksRegex="|<\s*link[^>]+.*href=['\"]([^'\"]*)['\"].*[/]?>|U";
-		preg_match_all($linksRegex, $buffer_uncomment, $css_matches);
-	
-		//check for external or media or index.php
-		foreach($css_matches[1] as $row => $change_file){
-			
-			
-			preg_match("/\\.css(.*)/", $change_file, $extracss);
-			if(!empty($extracss[1])){
-				$css_matches[1][$row] = str_replace($extracss[1],'',$change_file);
-			}
-			
-			if(!strstr($css_matches[0][$row], "text/css")){
-
-				unset($css_matches[0][$row]);
-				unset($css_matches[1][$row]);
-			}	
-		}
-		
-		$css_matches[0]  = array_values($css_matches[0]);
-		$css_matches[1]  = array_values($css_matches[1]);
-		
-		
-		//inline js inside head
-		$linksRegex="#<script\b((?!>|\bsrc\w*=).)*>(.*?)</script>#is";
-		preg_match_all($linksRegex, $head_content[2][0], $inline_js_head);
-		
-		
-		foreach($inline_js_head[2] as $key => $inline_js){
-			
-			$inline_js_head [$key] = $inline_js;
-		}
-			
-		$linksRegex="#<style type=['\"]text/css['\"]>(.*?)</style>#is";
-		preg_match_all($linksRegex, $head_content[2][0], $inline_css_head);	
-	
-		return array(
-					
-			'headTagContent'=>$head_content[2][0],
-			'styleSheets'=>$css_matches[1],
-			'styleSheetsLines'=>$css_matches[0],
-			'scripts'=>$js_matches[1],
-			'scriptsLines'=>$js_matches[0],
-			'inline_js_head'=>$inline_js_head,
-			'inline_css_head'=>$inline_css_head[1]
-		);
-	}
-	
 	
 	// create menu list for page scan
 	public function menuList($menulist='',$base='',$force = false,$echo = false,$save = false){
@@ -1204,83 +1039,30 @@ class plgSystemJCompress extends JPlugin{
 		}
 		
 	}
-	
-	
-	private function split_url( $url, $decode=TRUE ){
-		
-		$xunressub     = 'a-zA-Z\d\-._~\!$&\'()*+,;=';
-		$xpchar        = $xunressub . ':@%';
-	
-		$xscheme       = '([a-zA-Z][a-zA-Z\d+-.]*)';
-	
-		$xuserinfo     = '((['  . $xunressub . '%]*)' .
-						 '(:([' . $xunressub . ':%]*))?)';
-	
-		$xipv4         = '(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})';
-	
-		$xipv6         = '(\[([a-fA-F\d.:]+)\])';
-	
-		$xhost_name    = '([a-zA-Z\d-.%]+)';
-	
-		$xhost         = '(' . $xhost_name . '|' . $xipv4 . '|' . $xipv6 . ')';
-		$xport         = '(\d*)';
-		$xauthority    = '((' . $xuserinfo . '@)?' . $xhost .
-						 '?(:' . $xport . ')?)';
-	
-		$xslash_seg    = '(/[' . $xpchar . ']*)';
-		$xpath_authabs = '((//' . $xauthority . ')((/[' . $xpchar . ']*)*))';
-		$xpath_rel     = '([' . $xpchar . ']+' . $xslash_seg . '*)';
-		$xpath_abs     = '(/(' . $xpath_rel . ')?)';
-		$xapath        = '(' . $xpath_authabs . '|' . $xpath_abs .
-						 '|' . $xpath_rel . ')';
-	
-		$xqueryfrag    = '([' . $xpchar . '/?' . ']*)';
-	
-		$xurl          = '^(' . $xscheme . ':)?' .  $xapath . '?' .
-						 '(\?' . $xqueryfrag . ')?(#' . $xqueryfrag . ')?$';
-	 
-	 
-		// Split the URL into components.
-		if ( !preg_match( '!' . $xurl . '!', $url, $m ) )
-			return FALSE;
-	 
-		if ( !empty($m[2]) )        $parts['scheme']  = strtolower($m[2]);
-	 
-		if ( !empty($m[7]) ) {
-			if ( isset( $m[9] ) )   $parts['user']    = $m[9];
-			else            $parts['user']    = '';
-		}
-		if ( !empty($m[10]) )       $parts['pass']    = $m[11];
-	 
-		if ( !empty($m[13]) )       $h=$parts['host'] = $m[13];
-		else if ( !empty($m[14]) )  $parts['host']    = $m[14];
-		else if ( !empty($m[16]) )  $parts['host']    = $m[16];
-		else if ( !empty( $m[5] ) ) $parts['host']    = '';
-		if ( !empty($m[17]) )       $parts['port']    = $m[18];
-	 
-		if ( !empty($m[19]) )       $parts['path']    = $m[19];
-		else if ( !empty($m[21]) )  $parts['path']    = $m[21];
-		else if ( !empty($m[25]) )  $parts['path']    = $m[25];
-	 
-		if ( !empty($m[27]) )       $parts['query']   = $m[28];
-		if ( !empty($m[29]) )       $parts['fragment']= $m[30];
-	 
-		if ( !$decode )
-			return $parts;
-		if ( !empty($parts['user']) )
-			$parts['user']     = rawurldecode( $parts['user'] );
-		if ( !empty($parts['pass']) )
-			$parts['pass']     = rawurldecode( $parts['pass'] );
-		if ( !empty($parts['path']) )
-			$parts['path']     = rawurldecode( $parts['path'] );
-		if ( isset($h) )
-			$parts['host']     = rawurldecode( $parts['host'] );
-		if ( !empty($parts['query']) )
-			$parts['query']    = rawurldecode( $parts['query'] );
-		if ( !empty($parts['fragment']) )
-			$parts['fragment'] = rawurldecode( $parts['fragment'] );
-		return $parts;
-	}
-	
-	
+
+	public function toDataUrl($url){
+		 
+		 $filepath 	= $this->fileLink($url,true);	
+		 
+		 if(!is_file($filepath)) return $url;
+		 
+		 if($this->externalFile($url,$this->site_url)) return $url;
+		 
+		 $stat = @stat($filepath);
+		 $size = $stat['size'];
+		 
+		 if ($size > $this->datauri_size) return $url;
+		 
+		 $xtn = mb_strtolower(pathinfo(basename($url), PATHINFO_EXTENSION));
+		 
+		 if (in_array($xtn, array('jpg', 'jpeg', 'gif', 'png')) && $this->datauri_images == 1) {
+			$url =	$this->util->dataUrl($url);
+		 }
+		 
+		 if (in_array($xtn, array('ttf', 'svg', 'eot', 'otf','woff',)) && $this->datauri_fonts == 1) {
+			$url =	$this->util->dataUrl($url);
+		 }
+		 
+		 return $url;    
+	}	
 }
