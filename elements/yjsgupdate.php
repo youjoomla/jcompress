@@ -23,9 +23,13 @@ require_once(JPATH_BASE . DIRECTORY_SEPARATOR . 'includes' . DIRECTORY_SEPARATOR
 jimport('joomla.filesystem.file');
 jimport('joomla.filesystem.folder');
 jimport('joomla.plugin.helper');
-
+jimport('joomla.application.component.helper');
 
 if (isset($_POST['task'])) {
+	
+	
+	$published = JPluginHelper::isEnabled('system', 'jcompress');
+	if(!$published) return;
 	
 	require('yjsgjson.php');
 	
@@ -35,7 +39,7 @@ if (isset($_POST['task'])) {
 	
 	//load the language files
 	$language = JFactory::getLanguage();
-	$language->load('plg_system_yjsg', JPATH_ADMINISTRATOR);
+	$language->load('plg_system_jcompress', JPATH_ADMINISTRATOR);
 	
 	
 	
