@@ -13,6 +13,8 @@ defined('JPATH_BASE') or die();
 jimport('joomla.html.html');
 jimport('joomla.access.access');
 jimport('joomla.form.formfield');
+jimport('joomla.filesystem.file');
+jimport('joomla.filesystem.folder');
 
 /**
  * Form Field-class for selecting a component
