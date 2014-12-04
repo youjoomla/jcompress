@@ -77,7 +77,9 @@
 				},
 				dataType: 'json',
 				success: function(data) {
-
+					
+					if(!data) return;
+					
 					var menuLinks = jQuery.parseJSON(data.menuarray);
 					var lastEl = $(menuLinks).last()[0].full_link;
 
