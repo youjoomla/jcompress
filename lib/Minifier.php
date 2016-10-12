@@ -10,7 +10,7 @@
 
 /**
  * JShrink
- *
+ * v 1.0.1
  *
  * @package    JShrink
  * @author     Robert Hafner <tedivm@tedivm.com>

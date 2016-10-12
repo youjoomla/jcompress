@@ -79,7 +79,7 @@ class JFormFieldYjsgclear extends JFormField {
         
         if (!$published) return;
         
-        $assets_path = str_replace(JPATH_ROOT, rtrim(JURI::root(), "/"), dirname(__FILE__));
+        $assets_path = str_replace(JPATH_ROOT, rtrim(JURI::root( true ), "/"), dirname(__FILE__));
         $assets_path = str_replace('\\', '/', $assets_path);
         $document    = JFactory::getDocument();
         $document->addStyleSheet($assets_path . '/css/stylesheet.css');

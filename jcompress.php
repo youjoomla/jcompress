@@ -161,14 +161,16 @@ class plgSystemJCompress extends JPlugin{
 			if(!empty($this->excluded_components) && in_array($this->option,$this->excluded_components)){
 				$this->caching_on = 0;
 			}
-			
-			// exclude from edit pages
+
+			// exclude from edit pages and feeds
 			if(
 					$this->input->get('layout') == 'itemform' || 
 					$this->input->get('layout') == 'edit' || 
 					$this->input->get('task') == 'add' ||
 					$this->input->get('task') == 'edit' ||
-					$this->input->get('task') == 'article.edit'
+					$this->input->get('task') == 'article.edit' || 
+					$this->doc->getType() != 'html'
+					//
 			
 			){
 				$this->caching_on = 0;
@@ -399,7 +401,7 @@ class plgSystemJCompress extends JPlugin{
 			
 			if( JFile::exists($filepath) ){
 				
-				$js_file_content [] = "\r\n/*!$fileurl*/\r\n".JFile::read($filepath)."\r\n";
+				$js_file_content [] = "\r\n/*!$filepath*/\r\n".JFile::read($filepath)."\r\n";
 				$this->js_log_content [$filepath]['filetime']= filemtime($filepath);
 				
 			}
@@ -411,8 +413,9 @@ class plgSystemJCompress extends JPlugin{
 		$cached_js_file_content = implode('',$js_file_content);
 		
 		if($this->compress_js == 1){
-				require_once "lib/Minifier.php";
-				$cached_js_file_content = \JShrink\Minifier::minify($cached_js_file_content);					
+			require_once "lib/Minifier.php";
+			$minify_js =  \JShrink\Minifier::minify($cached_js_file_content);
+			$cached_js_file_content = $minify_js;
 		}	
 		
 		if(JFile::exists($this->cached_js)) return;
@@ -872,6 +875,9 @@ class plgSystemJCompress extends JPlugin{
 			}
 		}
 		
+		$finalcss = str_replace( 'https://', '//', $finalcss );
+		$finalcss = str_replace( 'http://', '//', $finalcss );
+				
 		return $finalcss;
 	}
 	

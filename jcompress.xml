@@ -2,11 +2,11 @@
 <extension version="2.5" type="plugin" group="system" method="upgrade">
 	<name>JCompress</name>
 	<author>Youjoomla.com</author>
-	<creationDate>11-28-2014</creationDate>
+	<creationDate>10-12-2016</creationDate>
 	<copyright>Copyright (c) since 2007 Youjoomla.com. All rights reserved.</copyright>
 	<authorEmail>youjoomla@gmail.com</authorEmail>
 	<authorUrl>www.youjoomla.com</authorUrl>
-	<version>RC1</version>
+	<version>1.0.1</version>
 	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
 	<description>
 		<![CDATA[<style type="text/css" media="all">body {background:#fff;}#wrap1 {padding:10px 0;margin:0 auto;display:block;overflow:hidden;height:580px!important;background:#F6F6F6;border:1px solid #DEDEDE;}span.extitle {display:block;clear:both;font-weight:bold;font-family: Arial Narrow, sans-serif;font-size:18px;margin:10px 20px;color:#1e2325!important;text-align:center;padding:5px;background:#DEDEDE;border:5px solid #fff;text-shadow:1px 1px #fff;}.eximg {margin:0 auto 20px auto;border:5px solid #fff;}.exinfo{display:block;overflow:hidden;text-align:left;padding:10px;clear:both;font-size:12px;font-weight:bold;}</style>

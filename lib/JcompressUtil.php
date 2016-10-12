@@ -69,10 +69,12 @@ class JcompressUtil {
     public static function wspace($string) {
         
         $string = preg_replace(array(
+			'/[^(https:)]\/\/.*$/m',
             '/[^(http:)]\/\/.*$/m',
             '/\/\*.*\*\//U',
             '/\s+/'
         ), array(
+			'',
             '',
             '',
             ' '
